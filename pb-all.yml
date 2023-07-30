@@ -1,0 +1,20 @@
+---
+- name: Prepare vagrant nodes
+  hosts: all
+  become: true
+  pre_tasks: #здесь можно указать задачи для выполнения в первую очередь
+  - name: Set time zone #Указать временную зону
+    community.general.timezone:
+      name: Europe/Moscow
+  - name: Update system cache #обновить системный кеш
+    ansible.builtin.apt:
+      update_cache: true
+      upgrade: true
+      cache_valid_time: 3600
+  - name: Put authorized keys #подложить ключи
+    ansible.posix.authorized_key: #эта функция не всегда есть по умолчанию даже если есть установленный ansible; ansible-galaxy collection install ansible.posix - эта команда скачает библиотеку с недостающей функцией
+      user: vagrant
+      state: present
+      key: | #читать как несколько строк; если хотим как разные строки, то не |, а >
+        ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCaYhLm9/X1UKjNsooxXTDIjMPgAu9zrgQU8Nkk+KCyZYNvXmP/QPvrvqSQWtb6N8h20Ae9PCwwOtAcZCtbYOwRC0K3+xdAVdmoBk8BWkAjf/JWNHbXDPFt7DuwzmuDGtUwoGYeukEZ5KT4vN9cpI1whlUJDCHndrPdgGPIbqjchH3UTvdu5sLiKVvmyFaJd1isdQpM1/BBodUVkov/n5P0hwtjmby39XiZg7Z9SY0jivMOuqgeZVNORU3mmdMC8SmxN608M+rBj0uHWCUFNFDObMQRK5gueCicnk7su50H6cJWQwD6dYLd7cByFN7/p2MgsYAcR4xmeWK73I2eZI3JoT23oIfE41shn2jBGOvb2AMVdfqYk0Ytup7G9yJIlxRIN6rplsdC9tV+n/yUp/Efly4OabdOaujGGbfTf6R7aMbaBK8ucEOYtWb3esJBIM9dD58/asEi3Idy9tquPhX/i8wxazn1oscnbD8XL2jcnqKY/iqHGQflm0rTj7tKpKc= rn@srv-rc-11
+

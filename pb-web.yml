@@ -1,0 +1,8 @@
+---
+- name: preparing web-balance host
+  hosts: web
+  become: true
+  pre_tasks:
+  - name: Install apache
+    ansible.builtin.apt:
+      name: apache2

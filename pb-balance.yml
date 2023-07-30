@@ -1,0 +1,8 @@
+---
+- name: preparing web-balance host
+  hosts: balance
+  become: true
+  pre_tasks:
+  - name: Install nginx
+    ansible.builtin.apt:
+      name: nginx
