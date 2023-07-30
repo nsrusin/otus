@@ -1,13 +1,13 @@
 [cn]
-192.168.4.211
+192.168.4.211 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
 
 [balance]
-192.168.4.212
+192.168.4.212 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
 
 [web]
-192.168.4.213
-192.168.4.214
+192.168.4.213 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
+192.168.4.214 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
 
 [db]
-192.168.4.215
-192.168.4.216
+192.168.4.215 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
+192.168.4.216 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant

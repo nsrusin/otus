@@ -6,3 +6,25 @@
   - name: Install apache
     ansible.builtin.apt:
       name: apache2
+  #- name: Download Wordpress
+    #ansible.builtin.get_url:
+      #url: https://ru.wordpress.org/latest-ru_RU.zip
+      #dest: /home/vagrant
+  #- name: Create a directory fo Wordpress if it does not exist
+    #ansible.builtin.file:
+      #path: /var/www/wordpress
+      #state: directory
+      #mode: '0755'
+  - name: Extract wordpress-6.2.2-ru_RU.zip
+    ansible.builtin.unarchive:
+      src: /home/vagrant/wordpress-6.2.2-ru_RU.zip
+      dest: /var/www/
+      remote_src: yes
+      owner: vagrant
+      group: vagrant
+
+      #скопировать файл 000, переименовать в домен нашего сайта, внести изменения внутри (путь до /var/www/wordpress; почта; имя сайта и алиас)
+      #sudo a2ensite wordpress.conf
+      #sudo systemctl reload apache2
+      #hosts на виндовом хосте
+      #sudo apt install php libapache2-mod-php php-mysql

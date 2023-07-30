@@ -17,4 +17,6 @@
       state: present
       key: | #читать как несколько строк; если хотим как разные строки, то не |, а >
         ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCaYhLm9/X1UKjNsooxXTDIjMPgAu9zrgQU8Nkk+KCyZYNvXmP/QPvrvqSQWtb6N8h20Ae9PCwwOtAcZCtbYOwRC0K3+xdAVdmoBk8BWkAjf/JWNHbXDPFt7DuwzmuDGtUwoGYeukEZ5KT4vN9cpI1whlUJDCHndrPdgGPIbqjchH3UTvdu5sLiKVvmyFaJd1isdQpM1/BBodUVkov/n5P0hwtjmby39XiZg7Z9SY0jivMOuqgeZVNORU3mmdMC8SmxN608M+rBj0uHWCUFNFDObMQRK5gueCicnk7su50H6cJWQwD6dYLd7cByFN7/p2MgsYAcR4xmeWK73I2eZI3JoT23oIfE41shn2jBGOvb2AMVdfqYk0Ytup7G9yJIlxRIN6rplsdC9tV+n/yUp/Efly4OabdOaujGGbfTf6R7aMbaBK8ucEOYtWb3esJBIM9dD58/asEi3Idy9tquPhX/i8wxazn1oscnbD8XL2jcnqKY/iqHGQflm0rTj7tKpKc= rn@srv-rc-11
-
+  - name: install unzip
+    ansible.builtin.apt:
+      name: unzip
