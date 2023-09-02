@@ -1,6 +1,3 @@
-[cn]
-192.168.4.211 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
-
 [balance]
 192.168.4.212 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
 

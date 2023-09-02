@@ -3,28 +3,54 @@
   hosts: web
   become: true
   pre_tasks:
-  - name: Install apache
+  - name: Install apache2, php, libapache2-mod-php, php-mysql
     ansible.builtin.apt:
-      name: apache2
-  #- name: Download Wordpress
-    #ansible.builtin.get_url:
-      #url: https://ru.wordpress.org/latest-ru_RU.zip
-      #dest: /home/vagrant
-  #- name: Create a directory fo Wordpress if it does not exist
-    #ansible.builtin.file:
-      #path: /var/www/wordpress
-      #state: directory
-      #mode: '0755'
-  - name: Extract wordpress-6.2.2-ru_RU.zip
+      name: apache2, php, libapache2-mod-php, php-mysql
+  - name: Download Wordpress
+    ansible.builtin.get_url:
+      url: https://ru.wordpress.org/latest-ru_RU.zip
+      dest: /home/vagrant
+  - name: Create a directory for Wordpress if it does not exist
+    ansible.builtin.file:
+      path: /var/www/wordpress
+      state: directory
+      mode: '0755'
+  #- name: Prepare name of package to copy
+  #  find:
+  #    paths: /home/vagrant
+  #    patterns: 'wordpress*'
+  #    use_regex: yes
+  #  register: file_name
+    #deligate_to: 
+  - name: Extract wordpress archive
     ansible.builtin.unarchive:
-      src: /home/vagrant/wordpress-6.2.2-ru_RU.zip
+      src: /home/vagrant/wordpress-6.3.1-ru_RU.zip
+      #src: /home/vagrant/{{ file_name }}
       dest: /var/www/
       remote_src: yes
       owner: vagrant
       group: vagrant
+  - name: Copy virtual web host config
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/wordpress.conf
+      dest: /etc/apache2/sites-available/wordpress.conf
+      owner: vagrant
+      group: vagrant
+      mode: '0644'
+      remote_src: yes
+  - name: a2ensite {{ 'wordpress' }}
+    command: a2ensite {{ 'wordpress' }}
+    notify:
+    - restart apache2
+
+  handlers:
+    - name: restart apache2
+      ansible.builtin.service:
+        name: apache2
+        state: restarted
+
 
       #скопировать файл 000, переименовать в домен нашего сайта, внести изменения внутри (путь до /var/www/wordpress; почта; имя сайта и алиас)
-      #sudo a2ensite wordpress.conf
-      #sudo systemctl reload apache2
-      #hosts на виндовом хосте
-      #sudo apt install php libapache2-mod-php php-mysql
+      #sudo a2ensite wordpress.conf - активировать сайт / виртуальный хост
+      #sudo systemctl reload apache2 - перезагрузить apache
+      #hosts на виндовом ПК
