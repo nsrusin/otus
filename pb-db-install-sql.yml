@@ -1,0 +1,8 @@
+---
+- name: preparing db host
+  hosts: db
+  become: true
+  pre_tasks:
+  - name: Install mysql
+    ansible.builtin.apt:
+      name: mysql-server

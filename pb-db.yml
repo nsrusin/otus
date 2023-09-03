@@ -1,8 +1,44 @@
 ---
-- name: preparing db host
-  hosts: db
+- hosts: db
   become: true
-  pre_tasks:
-  - name: Install mysql
+  vars:
+    mysql_root_password: Qwerty123
+
+  tasks:
+  - name: install mysql
     ansible.builtin.apt:
       name: mysql-server
+      update_cache: yes
+      #cache_valid_time: 3600
+      #state: present
+
+  - name: start up the mysql service
+    shell: "systemctl start mysql"
+
+  - name: ensure mysql is enabled to run on startup
+    service:
+      name: mysql-server
+      state: started
+      enabled: true
+
+  - name: update mysql root password for all root accounts
+    mysql_user:
+      name: root
+      host: "{{ item }}"
+      password: "{{ mysql_root_password }}"
+      login_user: root
+      login_password: "{{ mysql_root_password }}"
+      check_implicit_admin: yes
+      priv: "*.*:ALL,GRANT"
+    with_items:
+    - "{{ ansible_hostname }}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+  - name: create a new database
+    mysql_db:
+      name: wordpress
+      state: present
+      login_user: root
+      login_password: "{{ mysql_root_password }}"
