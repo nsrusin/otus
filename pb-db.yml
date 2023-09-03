@@ -2,7 +2,7 @@
 - hosts: db
   become: true
   vars:
-    mysql_root_password: Qwerty123
+    mysql_root_password: password
 
   tasks:
   - name: install mysql
@@ -12,12 +12,24 @@
       #cache_valid_time: 3600
       #state: present
 
+  - name: Install required software
+    apt: name={{ item }} state=present
+    with_items:
+      - python3-pymysql
+      - python3-pip
+
+  - name: Make sure pymysql is present
+    become: true # needed if the other tasks are not played as root
+    pip:
+      name: pymysql
+      state: present
+
   - name: start up the mysql service
     shell: "systemctl start mysql"
 
   - name: ensure mysql is enabled to run on startup
     service:
-      name: mysql-server
+      name: mysql
       state: started
       enabled: true
 
@@ -26,6 +38,7 @@
       name: root
       host: "{{ item }}"
       password: "{{ mysql_root_password }}"
+      login_unix_socket: /var/run/mysqld/mysqld.sock
       login_user: root
       login_password: "{{ mysql_root_password }}"
       check_implicit_admin: yes
@@ -35,6 +48,8 @@
     - 127.0.0.1
     - ::1
     - localhost
+    - 192.168.4.213
+    - 192.168.4.214
 
   - name: create a new database
     mysql_db:
@@ -42,3 +57,12 @@
       state: present
       login_user: root
       login_password: "{{ mysql_root_password }}"
+
+  - name: copy config with allow network input connections
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/mysqld.cnf
+      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+      remote_src: yes
+
+  - name: restart service mysql
+    service: name=mysql state=restarted

@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: true
+  gather_facts: no
+  tasks:
+  - name: "updating server"
+    apt:
+      update_cache: yes
+  - name: "Installing apt dependencies"
+    apt:
+     name: "{{item}}"
+    with_items:
+      - build-essential
+      - libmysqlclient-dev
+      - mysql-server
+      - mysql-client
+      - pip
+      - python3-pip
+      - libmysqlclient-dev
+      - python3-dev
+      - python3-mysqldb

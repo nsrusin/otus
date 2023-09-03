@@ -11,6 +11,10 @@
       update_cache: true
       upgrade: true
       cache_valid_time: 3600
+  - name: Update all packages to their latest version #обновить пакеты
+    ansible.builtin.apt:
+      name: "*"
+      state: latest
   - name: Put authorized keys #подложить ключи
     ansible.posix.authorized_key: #эта функция не всегда есть по умолчанию даже если есть установленный ansible; ansible-galaxy collection install ansible.posix - эта команда скачает библиотеку с недостающей функцией
       user: vagrant
@@ -24,3 +28,10 @@
     ansible.builtin.git:
       repo: https://github.com/nsrusin/otus.git
       dest: /home/vagrant/otus
+  - name: copy resolve.conf
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/resolved.conf
+      dest: /etc/systemd/resolved.conf
+      remote_src: yes
+  - name: restart service systemd-resolved
+    service: name=systemd-resolved state=restarted
