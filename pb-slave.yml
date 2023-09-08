@@ -1,5 +1,5 @@
 ---
-- hosts: db
+- hosts: slave
   become: true
   tasks:
 #  - name: copy config #Скопировать конфиг
@@ -8,30 +8,245 @@
 #      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
 #      remote_src: yes
 
-  - name: Stop mysql replica thread #Stop replica
-    community.mysql.mysql_replication:
-      mode: stopreplica
-#      channel: io_thread
-      login_unix_socket: /run/mysqld/mysqld.sock
-
 #  - name: restart mysql #Перезапуск mysql после копирования конфига
 #    service: name=mysql state=restarted
+
+#  - name: Stop mysql replica thread #Stop replica
+#    community.mysql.mysql_replication:
+#      mode: stopreplica
+#      channel: io_thread
+#      login_unix_socket: /run/mysqld/mysqld.sock
 
 #  - name: Change primary server and use binary log with position
 #    community.mysql.mysql_replication:
 #      mode: changeprimary
 #      primary_host: 192.168.4.215
-#      primary_log_file: binlog.000041
-#      primary_log_pos: 345
+#      primary_log_file: binlog.000053
+#      primary_log_pos: 157
 #      primary_user: repl
 #      primary_password: replrepl
 #      login_user: root
 #      login_password: password
-      #login_host: 192.168.4.216
-      #login_unix_socket: /run/mysqld/mysqld.sock
-      #config_file:
+#      login_host: 192.168.4.216
+#      login_unix_socket: /run/mysqld/mysqld.sock
+#      config_file:
 
 #  - name: Start mysql replica thread  #Запустить слейв
 #    community.mysql.mysql_replication:
 #      mode: startreplica
 #      login_unix_socket: /run/mysqld/mysqld.sock
+
+######################################################################################
+
+#  - name: Download Prometheus
+#    ansible.builtin.get_url:
+#      url: https://github.com/prometheus/prometheus/releases/download/v2.47.0/prometheus-2.47.0.linux-amd64.tar.gz
+#      dest: /home/vagrant
+
+#  - name: Download node_exporter
+#    ansible.builtin.get_url:
+#      url: https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+#      dest: /home/vagrant
+
+  - name: Add the user prometheus
+    ansible.builtin.user:
+      name: prometheus
+      home: /usr/sbin/false
+      shell: /usr/sbin/false
+
+  - name: Add the user node_exporter
+    ansible.builtin.user:
+      name: node_exporter
+      home: /usr/sbin/false
+      shell: /usr/sbin/false
+
+  - name: Create a directory "prometheus" if it does not exist
+    ansible.builtin.file:
+      path: /home/vagrant/prometheus
+      state: directory
+      mode: '0755'
+
+  - name: Create a directory "node_exporter" if it does not exist
+    ansible.builtin.file:
+      path: /home/vagrant/node_exporter
+      state: directory
+      mode: '0755'
+
+  - name: Extract prometheus-2.47.0.linux-amd64.tar.gz into prometheus
+    ansible.builtin.unarchive:
+      src: /home/vagrant/prometheus-2.47.0.linux-amd64.tar.gz
+      dest: /home/vagrant/prometheus
+      remote_src: yes
+
+  - name: Extract node_exporter-1.6.1.linux-amd64.tar.gz into ~/node_exporter
+    ansible.builtin.unarchive:
+      src: /home/vagrant/node_exporter-1.6.1.linux-amd64.tar.gz
+      dest: /home/vagrant/node_exporter
+      remote_src: yes
+
+  - name: Create a directory "/etc/prometheus" if it does not exist
+    ansible.builtin.file:
+      path: /etc/prometheus
+      state: directory
+      mode: '0755'
+
+  - name: Create a directory "/var/lib/prometheus" if it does not exist
+    ansible.builtin.file:
+      path: /var/lib/prometheus
+      state: directory
+      mode: '0755'
+      owner: prometheus
+      group: prometheus
+
+  - name: copy prometheus.yml
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/prometheus.yml
+      dest: /etc/prometheus/prometheus.yml
+      remote_src: yes
+      mode: '0755'
+
+  - name: copy prometheus/consoles folder
+    ansible.builtin.copy:
+      src: /home/vagrant/prometheus/prometheus-2.47.0.linux-amd64/consoles
+      dest: /etc/prometheus/consoles
+      remote_src: yes
+      owner: prometheus
+      group: prometheus
+      mode: '0755'
+
+  - name: copy prometheus/console_libraries
+    ansible.builtin.copy:
+      src: /home/vagrant/prometheus/prometheus-2.47.0.linux-amd64/console_libraries
+      dest: /etc/prometheus/console_libraries
+      remote_src: yes
+      owner: prometheus
+      group: prometheus
+      mode: '0755'
+
+  - name: copy prometheus file
+    ansible.builtin.copy:
+      src: /home/vagrant/prometheus/prometheus-2.47.0.linux-amd64/prometheus
+      dest: /usr/local/bin/prometheus
+      remote_src: yes
+      owner: prometheus
+      group: prometheus
+      mode: '0755'
+
+  - name: copy promtool file
+    ansible.builtin.copy:
+      src: /home/vagrant/prometheus/prometheus-2.47.0.linux-amd64/promtool
+      dest: /usr/local/bin/promtool
+      remote_src: yes
+      owner: prometheus
+      group: prometheus
+      mode: '0755'
+
+  - name: copy node_exporter file
+    ansible.builtin.copy:
+      src: /home/vagrant/node_exporter/node_exporter-1.6.1.linux-amd64/node_exporter
+      dest: /usr/local/bin/node_exporter
+      remote_src: yes
+      owner: node_exporter
+      group: node_exporter
+      mode: '0755'
+
+#  - name: ad-hoc to ran prometheus with inserting the configs
+#    shell: "sudo -u prometheus /usr/local/bin/prometheus --config.file /etc/prometheus/prometheus.yml --storage.tsdb.path /var/lib/prometheus --web.console.templates /etc/prometheus/consoles --web.console.libraries /etc/prometheus/"
+
+  - name: copy prometheus.service file
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/prometheus.service
+      dest: /etc/systemd/system/prometheus.service
+      remote_src: yes
+
+  - name: copy node_exporter.service file
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/node_exporter.service
+      dest: /etc/systemd/system/node_exporter.service
+      remote_src: yes
+
+  - name: copy prometheus.yml file
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/prometheus.yml
+      dest: /etc/prometheus/prometheus.yml
+      remote_src: yes
+
+  - name: Just force systemd to reread configs to watch our new services
+    ansible.builtin.systemd:
+      daemon_reload: true
+
+  - name: Enable service prometheus
+    ansible.builtin.systemd:
+      name: prometheus
+      enabled: true
+
+  - name: Enable service node_exporter
+    ansible.builtin.systemd:
+      name: node_exporter
+      enabled: true
+
+### Install grafana (new method)
+  - name: Installing apt dependencies (grafana)
+    apt:
+     name: "{{item}}"
+    with_items:
+      - apt-transport-https
+      - software-properties-common
+      - wget
+
+  - name: Create a directory "/etc/apt/keyrings/" if it does not exist
+    ansible.builtin.file:
+      path: /etc/apt/keyrings/
+      state: directory
+      mode: '0755'
+
+  - name: ad-hoc (import Grafana the GPG key)
+    shell: "wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null"
+
+  - name: ad-hoc (add a repository for stable releases)
+    shell: "echo 'deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main' | sudo tee -a /etc/apt/sources.list.d/grafana.list"
+
+  - name: "updating server"
+    apt:
+      update_cache: yes
+
+  - name: Installing Grafana
+    apt:
+      name: grafana
+
+  - name: Enable service grafana-server
+    ansible.builtin.systemd:
+      name: grafana-server
+      enabled: true
+
+  - name: Start service Grafana, if not started
+    ansible.builtin.service:
+      name: grafana-server
+      state: started
+
+
+
+
+
+
+
+### Install grafana (old method)
+
+#  - name: Installing apt dependencies (grafana)
+#    apt:
+#      name: "{{item}}"
+#    with_items:
+#      - adduser
+#      - libfontconfig1
+#      - musl
+
+##  - name: Download grafana
+##    ansible.builtin.get_url:
+##      url: https://dl.grafana.com/enterprise/release/grafana-enterprise_10.1.1_amd64.deb
+##      dest: /home/vagrant
+
+#  - name: Install grafana
+#    apt:
+#      deb: https://dl.grafana.com/enterprise/release/grafana-enterprise_10.1.1_amd64.deb
+
+#Возможно, на этом этапе потребуется ребут сервера, ибо мне для запуска на 9090 и 9100 помог ребут. До ребута не поднималось. Либо отлаживать перезапуск демон-ресета

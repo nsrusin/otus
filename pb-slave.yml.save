@@ -1,0 +1,40 @@
+---
+- hosts: slave
+  become: true
+  tasks:
+  - name: copy config #Скопировать конфиг
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/mysqld.cnf
+      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+      remote_src: yes
+
+  - name: Stop mysql replica thread #Stop replica
+    community.mysql.mysql_replication:
+      mode: stopreplica
+      login_unix_socket: /run/mysqld/mysqld.sock
+
+#  - name: restart mysql #Перезапуск mysql после копирования конфига
+#    service: name=mysql state=restarted
+
+#  - name: Get primary binlog file name and binlog position
+#    community.mysql.mysql_replication:
+#      mode: getprimary
+
+  - name: Change primary server and use binary log with position
+    community.mysql.mysql_replication:
+      mode: changeprimary
+      primary_host: 192.168.4.215
+      primary_log_file: binlog.000044
+      primary_log_pos: 157
+      primary_user: repl
+      primary_password: replrepl
+      login_user: root
+      login_password: password
+      login_host: 192.168.4.216
+      login_unix_socket: /run/mysqld/mysqld.sock
+##     config_file:
+
+  - name: Start mysql replica thread  #Запустить слейв
+    community.mysql.mysql_replication:
+      mode: startreplica
+      login_unix_socket: /run/mysqld/mysqld.sock
