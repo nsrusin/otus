@@ -179,11 +179,13 @@
     ansible.builtin.systemd:
       name: prometheus
       enabled: true
+      state: started
 
   - name: Enable service node_exporter
     ansible.builtin.systemd:
       name: node_exporter
       enabled: true
+      state: started
 
 ### Install grafana (new method)
   - name: Installing apt dependencies (grafana)
