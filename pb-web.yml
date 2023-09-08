@@ -30,7 +30,14 @@
       remote_src: yes
       owner: vagrant
       group: vagrant
-      mode: '0666'
+#      mode: '0666'
+
+  - name: change permissions for folders of wordpress
+    shell: "sudo find /var/www/wordpress -type d -print0 | xargs -0 chmod 755"
+
+  - name: change permissions for files of wordpress
+    shell: "sudo find /var/www/wordpress -type f -print0 | xargs -0 chmod 644"
+    
   - name: Copy virtual web host config
     ansible.builtin.copy:
       src: /home/vagrant/otus/wordpress.conf
