@@ -1,4 +1,4 @@
-
+  GNU nano 6.2                                                    /etc/prometheus/prometheus.yml                                                             
 # my global config
 global:
   scrape_interval: 15s # Set the scrape interval to every 15 seconds. Default is every 1 min$
@@ -28,8 +28,32 @@ scrape_configs:
 
     static_configs:
       - targets: ["localhost:9090"]
-  - job_name: "node_exporter"
+  - job_name: "node_exporter DB-02"
     scrape_interval: 5s
     static_configs:
       - targets:
-        - "localhost:9100"
+        - "192.168.4.216:9100"
+
+  - job_name: "node_exporter BALANCE"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "192.168.4.212:9100"
+
+  - job_name: "node_exporter WEB-01"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "192.168.4.213:9100"
+
+  - job_name: "node_exporter WEB-02"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "192.168.4.214:9100"
+
+  - job_name: "node_exporter DB-01"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "192.168.4.215:9100"
