@@ -51,13 +51,6 @@
     - 192.168.4.213
     - 192.168.4.214
 
-  - name: create a new database
-    mysql_db:
-      name: wordpress
-      state: present
-      login_user: root
-      login_password: "{{ mysql_root_password }}"
-
   - name: copy config with allow network input connections
     ansible.builtin.copy:
       src: /home/vagrant/otus/mysqld.cnf
