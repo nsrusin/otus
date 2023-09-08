@@ -16,5 +16,12 @@
       priv: "*.*:REPLICATION CLIENT"
       host: all
 
+  - name: create a new database
+    mysql_db:
+      name: wordpress
+      state: present
+      login_user: root
+      login_password: "{{ mysql_root_password }}"
+
   - name: restart service mysql
     service: name=mysql state=restarted
