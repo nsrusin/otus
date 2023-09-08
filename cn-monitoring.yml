@@ -1,0 +1,47 @@
+---
+- hosts: cn
+  become: true
+  tasks:
+
+  - name: Download node_exporter
+    ansible.builtin.get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+      dest: /home/vagrant
+
+  - name: Add the user node_exporter
+    ansible.builtin.user:
+      name: node_exporter
+      home: /usr/sbin/false
+      shell: /usr/sbin/false
+
+  - name: Create a directory "node_exporter" if it does not exist
+    ansible.builtin.file:
+      path: /home/vagrant/node_exporter
+      state: directory
+      mode: '0755'
+
+  - name: Extract node_exporter-1.6.1.linux-amd64.tar.gz into ~/node_exporter
+    ansible.builtin.unarchive:
+      src: /home/vagrant/node_exporter-1.6.1.linux-amd64.tar.gz
+      dest: /home/vagrant/node_exporter
+      remote_src: yes
+
+  - name: copy node_exporter file
+    ansible.builtin.copy:
+      src: /home/vagrant/node_exporter/node_exporter-1.6.1.linux-amd64/node_exporter
+      dest: /usr/local/bin/node_exporter
+      remote_src: yes
+      owner: node_exporter
+      group: node_exporter
+      mode: '0755'
+
+  - name: copy node_exporter.service file
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/node_exporter.service
+      dest: /etc/systemd/system/node_exporter.service
+      remote_src: yes
+
+  - name: Enable service node_exporter
+    ansible.builtin.systemd:
+      name: node_exporter
+      enabled: true
