@@ -38,15 +38,15 @@
 
 ######################################################################################
 
-#  - name: Download Prometheus
-#    ansible.builtin.get_url:
-#      url: https://github.com/prometheus/prometheus/releases/download/v2.47.0/prometheus-2.47.0.linux-amd64.tar.gz
-#      dest: /home/vagrant
+  - name: Download Prometheus
+    ansible.builtin.get_url:
+      url: https://github.com/prometheus/prometheus/releases/download/v2.47.0/prometheus-2.47.0.linux-amd64.tar.gz
+      dest: /home/vagrant
 
-#  - name: Download node_exporter
-#    ansible.builtin.get_url:
-#      url: https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
-#      dest: /home/vagrant
+  - name: Download node_exporter
+    ansible.builtin.get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v1.6.1/node_exporter-1.6.1.linux-amd64.tar.gz
+      dest: /home/vagrant
 
   - name: Add the user prometheus
     ansible.builtin.user:
