@@ -56,3 +56,9 @@ scrape_configs:
     static_configs:
       - targets:
         - "192.168.4.215:9100"
+
+  - job_name: "node_exporter ELK"
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - "192.168.4.217:9100"
