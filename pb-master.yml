@@ -13,8 +13,8 @@
       login_user: root
       login_password: "{{ mysql_root_password }}"
       check_implicit_admin: yes
-      priv: "*.*:REPLICATION CLIENT"
-      host: all
+      priv: "*.*:REPLICATION CLIENT,REPLICATION SLAVE"
+      host: 192.168.4.216
 
   - name: create a new database
     mysql_db:

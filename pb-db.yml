@@ -51,11 +51,11 @@
     - 192.168.4.213
     - 192.168.4.214
 
-  - name: copy config with allow network input connections
-    ansible.builtin.copy:
-      src: /home/vagrant/otus/mysqld.cnf
-      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
-      remote_src: yes
+  #- name: copy config with allow network input connections !!! Здесь это не надо! У мэйна должен оставаться id = 1
+  #  ansible.builtin.copy:
+  #    src: /home/vagrant/otus/mysqld.cnf
+  #    dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+  #    remote_src: yes
 
   - name: restart service mysql
     service: name=mysql state=restarted
