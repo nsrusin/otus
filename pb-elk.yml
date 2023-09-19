@@ -12,12 +12,31 @@
       - ca-certificates
       - curl
 
-  - name: add key
-    shell: 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/docker.gpg > /dev/null'
+  - name: change permissions of catalog /etc/apt/keyrings
+    ansible.builtin.file:
+      path: /etc/apt/keyrings
+      mode: '0755'
 
-  - name: add repository
-    shell: 'echo "deb [arch="$(dpkg --print-architecture)"signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu
-  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+  #- name: add key
+  #  shell: 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg'
+  #  shell: 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor | sudo tee /etc/apt/keyrings/docker.gpg >/dev/null'
+  - name: Add an Apt signing key to a specific keyring file
+    ansible.builtin.apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      keyring: /etc/apt/keyrings/docker.gpg
+
+
+  #- name: add repository
+  #  shell: 'echo "deb [arch="$(dpkg --print-architecture) "signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu" $(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+  #- name: Add specified repository into sources list
+  #  ansible.builtin.apt_repository:
+  #    repo: deb https://download.docker.com/linux/ubuntu jammy stable
+  #   # state: present
+
+  - name: Add specified repository into sources list
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu jammy stable
+
 
   - name: Update system cache and upgrade
     ansible.builtin.apt:
@@ -26,8 +45,13 @@
       cache_valid_time: 60
 
   - name: install docker-ce
-    ansible.builtin.apt:
-      name: docker-ce
+    apt: name={{ item }} state=present
+    with_items:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
 
   - name: run docker container
     docker_container:

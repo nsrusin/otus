@@ -1,0 +1,9 @@
+---
+- name: Prepare vagrant nodes
+  hosts: elk
+  become: true
+  become_method: sudo
+  tasks:
+  - name: Add specified repository into sources list
+    ansible.builtin.apt_repository:
+      repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu jammy stable
