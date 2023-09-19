@@ -16,5 +16,4 @@
 192.168.4.216 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant
 
 [elk]
-
 192.168.4.217 ansible_connection=ssh ansible_user=vagrant ansible_ssh_pass=vagrant

@@ -1,0 +1,36 @@
+---
+- name: Prepare vagrant nodes
+  hosts: elk
+  become: true
+  become_method: sudo
+  tasks:
+
+  - name: install packets for docker
+    apt: name={{ item }} state=present
+    with_items:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+
+  - name: add key
+    shell: 'curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor | sudo tee /etc/apt/keyrings/docker.gpg > /dev/null'
+
+  - name: add repository
+    shell: 'echo "deb [arch="$(dpkg --print-architecture)"signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null'
+
+  - name: Update system cache and upgrade
+    ansible.builtin.apt:
+      update_cache: true
+      upgrade: true
+      cache_valid_time: 60
+
+  - name: install docker-ce
+    ansible.builtin.apt:
+      name: docker-ce
+
+  - name: run docker container
+    docker_container:
+      name: elk
+      image: jhipster/jhipster-console
+      network_mode: host
