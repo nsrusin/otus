@@ -2,11 +2,17 @@
 - hosts: slave
   become: true
   tasks:
-  - name: copy config #Скопировать конфиг
-    ansible.builtin.copy:
-      src: /home/vagrant/otus/mysqld.cnf
-      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
-      remote_src: yes
+#  - name: copy config #Скопировать конфиг - поменяем это на изменение значение через regexp
+#    ansible.builtin.copy:
+#      src: /home/vagrant/otus/mysqld.cnf
+#      dest: /etc/mysql/mysql.conf.d/mysqld.cnf
+#      remote_src: yes
+
+  - name: add server_id in mysqld.cnf
+    ansible.builtin.replace:
+      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+      regexp: '(\[mysqld\])'
+      replace: '[mysqld]\n\nserver_id = 2\n'
 
   - name: restart mysql #Перезапуск mysql после копирования конфига
     service: name=mysql state=restarted
@@ -24,9 +30,12 @@
   - name: getprimary
     community.mysql.mysql_replication:
       mode: getprimary
-      login_user: repl2
+      login_user: root
       login_password: password
+      primary_user: repl
+      primary_password: replrepl
       login_host: 192.168.4.215
+      login_unix_socket: /run/mysqld/mysqld.sock
     register: Position
      # primary_user: repl
      # primary_password: replrepl

@@ -208,7 +208,7 @@
   - name: ad-hoc (add a repository for stable releases)
     shell: "echo 'deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main' | sudo tee -a /etc/apt/sources.list.d/grafana.list"
 
-  - name: "updating server"
+  - name: updating server
     apt:
       update_cache: yes
 

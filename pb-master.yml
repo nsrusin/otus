@@ -3,13 +3,20 @@
   become: true
   vars:
     mysql_root_password: password
-
   tasks:
+#  - name: change bind-address in mysqld.cnf
+#    ansible.builtin.replace:
+#      path: /etc/mysql/mysql.conf.d/mysqld.cnf
+#      regexp: '(^bind-address\s+=\s127.0.0.1)'
+#      replace: 'bind-address            = 0.0.0.0'
+#
+#  - name: restart mysql #Перезапуск mysql после замены bind-address в конфиге
+#    service: name=mysql state=restarted
+
   - name: create user for replication
     mysql_user:
       name: repl
       password: "replrepl"
-#      login_unix_socket: /var/run/mysqld/mysqld.sock
       login_user: root
       login_password: "{{ mysql_root_password }}"
       check_implicit_admin: yes

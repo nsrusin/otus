@@ -30,8 +30,8 @@
       #src: /home/vagrant/{{ file_name }}
       dest: /var/www/
       remote_src: yes
-      owner: vagrant
-      group: vagrant
+##      owner: vagrant
+##      group: vagrant
 #      mode: '0666'
 
   - name: change permissions for folders of wordpress
