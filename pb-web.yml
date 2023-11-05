@@ -26,7 +26,7 @@
     #deligate_to: 
   - name: Extract wordpress archive
     ansible.builtin.unarchive:
-      src: /home/vagrant/wordpress-6.3.1-ru_RU.zip
+      src: /home/vagrant/wordpress-6.3.2-ru_RU.zip
       #src: /home/vagrant/{{ file_name }}
       dest: /var/www/
       remote_src: yes
