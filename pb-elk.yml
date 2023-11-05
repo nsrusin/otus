@@ -5,6 +5,9 @@
   become_method: sudo
   tasks:
 
+  - name: vm.max_map_count=262144
+    shell: "sudo sysctl -w vm.max_map_count=262144"
+
   - name: install packets for docker
     apt: name={{ item }} state=present
     with_items:
@@ -53,8 +56,34 @@
       - docker-buildx-plugin
       - docker-compose-plugin
 
-  - name: run docker container
+  - name: run elk docker container
     docker_container:
       name: elk
-      image: jhipster/jhipster-console
+      image: sebp/elk
       network_mode: host
+
+  - name: dpkg -i filebeat
+      deb: /vagrant/filebeat-8.9.1-amd64.deb
+
+  - name: cp /etc/filebeat/filebeat.yml
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/filebeat.yml
+      dest: /etc/filebeat/filebeat.yml
+
+  - name: enable module nginx
+    shell: "sudo filebeat modules enable nginx"
+
+  - name: sed false to true in /etc/filebeat/modules.d/nginx.yml
+    ansible.builtin.replace:
+      path: /etc/filebeat/modules.d/nginx.yml
+      regexp: 'false'
+      replace: 'true'
+
+  - name: sudo filebeat setup
+    shell: "sudo filebeat setup"
+
+  - name: start and enable filebeat
+    service:
+      name: filebeat
+      state: started
+      enabled: true
