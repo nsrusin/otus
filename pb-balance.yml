@@ -54,3 +54,31 @@
 
   - name: Start nginx
     service: name=nginx state=started
+
+  - name: dpkg -i filebeat
+    ansible.builtin.apt:
+      deb: /vagrant/filebeat-8.9.1-amd64.deb
+
+  - name: cp /etc/filebeat/filebeat.yml
+    ansible.builtin.copy:
+      src: /home/vagrant/otus/filebeat.yml
+      dest: /etc/filebeat/filebeat.yml
+      remote_src: true
+
+  - name: enable module nginx
+    shell: "sudo filebeat modules enable nginx"
+
+  - name: sed false to true in /etc/filebeat/modules.d/nginx.yml
+    ansible.builtin.replace:
+      path: /etc/filebeat/modules.d/nginx.yml
+      regexp: 'false'
+      replace: 'true'
+
+  - name: sudo filebeat setup
+    shell: "sudo filebeat setup"
+
+  - name: start and enable filebeat
+    service:
+      name: filebeat
+      state: started
+      enabled: true
